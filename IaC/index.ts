@@ -2,13 +2,14 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 import * as random from "@pulumi/random";
+import {AuroraMysqlEngine, ServerlessEngine} from "@pulumi/aws/rds";
 
 // Get default VPC
 const vpc = awsx.ec2.Vpc.getDefault();
 
 // Create an Aurora Serverless MySQL database
 const dbsubnet = new aws.rds.SubnetGroup("dbsubnet", {
-    subnetIds: pulumi.output(vpc).privateSubnetIds,
+    subnetIds: vpc.publicSubnetIds,
 });
 
 const dbpassword = new random.RandomString("password", {
@@ -16,12 +17,18 @@ const dbpassword = new random.RandomString("password", {
 });
 
 const db = new aws.rds.Cluster("invest", {
-    engine: "aurora",
-    engineMode: "serverless",
+    engine: AuroraMysqlEngine,
+    engineMode: ServerlessEngine,
     engineVersion: "5.7.12",
     dbSubnetGroupName: dbsubnet.name,
     masterUsername: "root",
     masterPassword: dbpassword.result,
+    scalingConfiguration: {
+        autoPause: true,
+        maxCapacity: 4,
+        minCapacity: 1,
+        secondsUntilAutoPause: 300
+    }
 });
 
 // A function to run to connect to our database.
@@ -52,7 +59,7 @@ function queryDatabase(): Promise<void> {
 const lambda = new aws.lambda.CallbackFunction("invest-lambda", {
     vpcConfig: {
         securityGroupIds: db.vpcSecurityGroupIds,
-        subnetIds: vpc.privateSubnetIds,
+        subnetIds: vpc.publicSubnetIds,
     },
     policies: [
         aws.iam.ManagedPolicy.AWSLambdaVPCAccessExecutionRole,
