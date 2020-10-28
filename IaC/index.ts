@@ -8,12 +8,14 @@ const vpc = awsx.ec2.Vpc.getDefault();
 
 // Create an Aurora Serverless MySQL database
 const dbsubnet = new aws.rds.SubnetGroup("dbsubnet", {
-    subnetIds: vpc.privateSubnetIds,
+    subnetIds: pulumi.output(vpc).privateSubnetIds,
 });
+
 const dbpassword = new random.RandomString("password", {
     length: 20,
 });
-const db = new aws.rds.Cluster("db", {
+
+const db = new aws.rds.Cluster("invest", {
     engine: "aurora",
     engineMode: "serverless",
     engineVersion: "5.7.12",
@@ -36,9 +38,9 @@ function queryDatabase(): Promise<void> {
         connection.connect();
 
         console.log("querying...")
-        connection.query('SELECT 1 + 1 AS solution', function (error: any, results: any, fields: any) {
+        connection.query('select aurora_version() as version', function (error: any, results: any, fields: any) {
             if (error) { reject(error); return }
-            console.log('The solution is: ', results[0].solution);
+            console.log('The aurora version is: ', results[0].version);
             resolve();
         });
 
@@ -47,7 +49,7 @@ function queryDatabase(): Promise<void> {
 }
 
 // Create a Lambda within the VPC to access the Aurora DB and run the code above.
-const lambda = new aws.lambda.CallbackFunction("lambda", {
+const lambda = new aws.lambda.CallbackFunction("invest-lambda", {
     vpcConfig: {
         securityGroupIds: db.vpcSecurityGroupIds,
         subnetIds: vpc.privateSubnetIds,
