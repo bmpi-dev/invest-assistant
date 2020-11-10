@@ -7,6 +7,7 @@ import {InstanceType} from "@pulumi/aws/types/enums/ec2";
 const ec2ImageId = 'ami-00ddb0e5626798373';
 const ec2ImageOwner = '099720109477';
 const ec2InstanceName = "aws-ec2-ubuntu";
+const ec2KeypairName = 'pulumi_key'
 
 const pulumiAmi = pulumi.output(aws.getAmi({
     filters: [{ name: "image-id", values: [ec2ImageId]}],
@@ -27,11 +28,12 @@ const pulumiSecurityGroup = new aws.ec2.SecurityGroup("pulumi-secgrp", {
     }
 );
 
-const ec2Instance = new aws.ec2.SpotInstanceRequest(
+let ec2Instance = new aws.ec2.SpotInstanceRequest(
     ec2InstanceName,
     {
         instanceType: InstanceType.T2_Micro,
         ami: pulumiAmi.id,
+        keyName: ec2KeypairName,
         vpcSecurityGroupIds: [pulumiSecurityGroup.id],
         rootBlockDevice: {
             deleteOnTermination: false,
@@ -40,5 +42,5 @@ const ec2Instance = new aws.ec2.SpotInstanceRequest(
     }
 )
 
-export const publicIp = ec2Instance.publicIp;
-export const publicHostName = ec2Instance.publicDns;
+exports.publicIp = ec2Instance.publicIp.apply(res => res);
+exports.publicHostName = ec2Instance.publicDns.apply(res => res);

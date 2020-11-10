@@ -1,0 +1,27 @@
+- name: Create EC2 Keypair
+  hosts: localhost
+  gather_facts: false
+  vars:
+    keypair_name: pulumi_key
+    keypair_path: ".ec2ssh//{{ keypair_name }}"
+  tasks:
+    - name: Be sure to have .ec2ssh as local directory present
+      file:
+        path: ".ec2ssh"
+        state: directory
+
+    - name: Delete remote keypair
+      ec2_key:
+        name: "{{ keypair_name }}"
+        state: absent
+
+    - name: Create keypair
+      ec2_key:
+        name: "{{ keypair_name }}"
+      register: keypair
+
+    - name: Persist the keypair
+      copy:
+        dest: "{{ keypair_path }}"
+        content: "{{ keypair.key.private_key }}"
+        mode: 0600
