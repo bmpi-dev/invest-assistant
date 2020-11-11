@@ -1,0 +1,41 @@
+- name: Connect to Pulumi created EC2 instance and install Docker
+  hosts: localhost
+  vars:
+    keypair_name: pulumi_key
+    keypair_path: ".ec2ssh//{{ keypair_name }}"
+    # this is really important to configure, since Ansible will use this user for SSH connection
+    ssh_user: ubuntu
+  tasks:
+    - name: Gather Pulumi created EC2 instance public IP
+      shell: cat .ec2ssh/public_DNS
+      register: pulumi_stack_output
+
+    - set_fact:
+        ec2_public_dns: "{{ pulumi_stack_output.stdout }}"
+
+    - debug:
+        msg: "The public IP of the Pulumi created EC2 instance is: {{ ec2_public_dns }}"
+
+    - name: Wait 300 seconds for port 22 to become open and contain "SSH" - then the SSH connection should work afterwards
+      wait_for:
+        port: 22
+        host: "{{ ec2_public_dns }}"
+        search_regex: SSH
+        delay: 10
+        timeout: 320
+
+    - name: Gather facts of Pulumi created EC2 instance for later role execution
+      setup:
+      delegate_to: '{{ ec2_public_dns }}'
+      vars:
+        ansible_ssh_private_key_file: "{{ keypair_path }}"
+        ansible_user: ubuntu
+
+    - name: Now use the ansible-galaxy prepared mysql role to install MySQL on our EC2 instance
+      import_role:
+        name: mysql
+      delegate_to: '{{ ec2_public_dns }}'
+      become: true
+      vars:
+        ansible_ssh_private_key_file: "{{ keypair_path }}"
+        ansible_user: ubuntu
