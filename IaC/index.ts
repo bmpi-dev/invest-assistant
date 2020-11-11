@@ -24,8 +24,14 @@ const pulumiSecurityGroup = new aws.ec2.SecurityGroup("pulumi-secgrp", {
             toPort: sshPort,
             protocol: "tcp",
             cidrBlocks: ["0.0.0.0/0"]
+        }],
+    egress: [{
+            fromPort: 0,
+            toPort: 0,
+            protocol: "-1",
+            cidrBlocks: ["0.0.0.0/0"]
         }]
-    }
+    },
 );
 
 let ec2Instance = new aws.ec2.SpotInstanceRequest(
@@ -42,5 +48,5 @@ let ec2Instance = new aws.ec2.SpotInstanceRequest(
     }
 )
 
-exports.publicIp = ec2Instance.publicIp.apply(res => res);
-exports.publicHostName = ec2Instance.publicDns.apply(res => res);
+exports.publicIp = ec2Instance.publicIp;
+exports.publicHostName = ec2Instance.publicDns;
