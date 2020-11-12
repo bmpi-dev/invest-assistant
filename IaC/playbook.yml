@@ -10,8 +10,13 @@
       shell: cat .ec2ssh/public_DNS
       register: pulumi_stack_output
 
+    - name: Gather MySQL Root Password
+      shell: cat .ec2ssh/mysql_root_passwd
+      register: mysql_root_passwd
+
     - set_fact:
         ec2_public_dns: "{{ pulumi_stack_output.stdout }}"
+        mysql_root_passwd: "{{ mysql_root_passwd.stdout }}"
 
     - debug:
         msg: "The public IP of the Pulumi created EC2 instance is: {{ ec2_public_dns }}"
@@ -24,9 +29,24 @@
         delay: 10
         timeout: 320
 
+    - name: Allow sudo passwordless
+      become: true
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Update repositories cache and install "ec2-instance-connect" package for access by aws web console
+      become: true
+      apt:
+        name: ec2-instance-connect
+        update_cache: yes
+
     - name: Gather facts of Pulumi created EC2 instance for later role execution
       setup:
-      delegate_to: '{{ ec2_public_dns }}'
+      delegate_to: "{{ ec2_public_dns }}"
       vars:
         ansible_ssh_private_key_file: "{{ keypair_path }}"
         ansible_user: ubuntu
@@ -39,3 +59,6 @@
       vars:
         ansible_ssh_private_key_file: "{{ keypair_path }}"
         ansible_user: ubuntu
+        mysql_root_password: "{{ mysql_root_passwd }}"
+        mysql_user_home: /home/ubuntu
+        mysql_user_name: ubuntu
