@@ -1,4 +1,4 @@
-- name: Connect to Pulumi created EC2 instance and install Docker
+- name: Connect to Pulumi created EC2 instance and install MySQL
   hosts: localhost
   vars:
     keypair_name: pulumi_key
@@ -29,27 +29,19 @@
         delay: 10
         timeout: 320
 
-    - name: Allow sudo passwordless
-      become: true
-      lineinfile:
-        path: /etc/sudoers
-        state: present
-        regexp: '^%sudo'
-        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
-
-    - name: Update repositories cache and install "ec2-instance-connect" package for access by aws web console
-      become: true
-      apt:
-        name: ec2-instance-connect
-        update_cache: yes
-
     - name: Gather facts of Pulumi created EC2 instance for later role execution
       setup:
       delegate_to: "{{ ec2_public_dns }}"
       vars:
         ansible_ssh_private_key_file: "{{ keypair_path }}"
         ansible_user: ubuntu
+
+    - name: Update repositories cache and install "ec2-instance-connect" package for access by aws web console
+      delegate_to: '{{ ec2_public_dns }}'
+      become: true
+      apt:
+        name: ec2-instance-connect
+        update_cache: yes
 
     - name: Now use the ansible-galaxy prepared mysql role to install MySQL on our EC2 instance
       import_role:
