@@ -17,6 +17,7 @@ const pulumiAmi = pulumi.output(aws.getAmi({
 // const defaultVpc = awsx.ec2.Vpc.getDefault();
 
 const sshPort = 22
+const mysqlPort = 3306
 
 const pulumiSecurityGroup = new aws.ec2.SecurityGroup("pulumi-secgrp", {
     ingress: [{
@@ -24,7 +25,14 @@ const pulumiSecurityGroup = new aws.ec2.SecurityGroup("pulumi-secgrp", {
             toPort: sshPort,
             protocol: "tcp",
             cidrBlocks: ["0.0.0.0/0"]
-        }],
+        },
+        {
+            fromPort: mysqlPort,
+            toPort: mysqlPort,
+            protocol: "tcp",
+            cidrBlocks: ["0.0.0.0/0"]
+        }
+    ],
     egress: [{
             fromPort: 0,
             toPort: 0,

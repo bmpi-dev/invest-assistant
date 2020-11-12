@@ -7,7 +7,7 @@
     ssh_user: ubuntu
   tasks:
     - name: Gather Pulumi created EC2 instance public IP
-      shell: cat .ec2ssh/public_DNS
+      shell: cat .ec2ssh/mysql_public_DNS
       register: pulumi_stack_output
 
     - name: Gather MySQL Root Password
