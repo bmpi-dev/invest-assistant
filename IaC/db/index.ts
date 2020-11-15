@@ -25,14 +25,17 @@ const pulumiSecurityGroup = new aws.ec2.SecurityGroup("pulumi-secgrp", {
             toPort: sshPort,
             protocol: "tcp",
             cidrBlocks: ["0.0.0.0/0"]
-        },
-            {
-                fromPort: postgrePort,
-                toPort: postgrePort,
-                protocol: "tcp",
-                cidrBlocks: ["0.0.0.0/0"]
-            }
-        ],
+        }, {
+            fromPort: postgrePort,
+            toPort: postgrePort,
+            protocol: "tcp",
+            cidrBlocks: ["0.0.0.0/0"]
+        }, {
+            fromPort: 0,
+            toPort: 0,
+            protocol: "-1",
+            cidrBlocks: ["172.31.0.0/16"]
+        }],
         egress: [{
             fromPort: 0,
             toPort: 0,
