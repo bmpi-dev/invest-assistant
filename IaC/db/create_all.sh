@@ -10,8 +10,12 @@ ansible-playbook keypair.yml
 echo "execute Pulumi to create EC2 instances"
 pulumi up --yes
 
+# when server created, get public dns to .ec2ssh for ansible using
+
 echo "Downloading the Ansible role 'mysql' with ansible-galaxy"
 ansible-galaxy install -r requirements.yml -p roles/
 
 echo "run Ansible role to install MySQL on Ubuntu"
 ansible-playbook playbook.yml
+
+# destroy instance by aws web console, for pulumi cannot do it

@@ -1,3 +1,0 @@
-# dependency to mysql role
-- src: https://github.com/geerlingguy/ansible-role-mysql
-  name: mysql

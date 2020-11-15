@@ -4,7 +4,7 @@ import * as awsx from "@pulumi/awsx";
 import {InstanceType} from "@pulumi/aws/types/enums/ec2";
 
 // AMI image configuration
-const ec2ImageId = 'ami-00ddb0e5626798373';
+const ec2ImageId = 'ami-0885b1f6bd170450c';
 const ec2ImageOwner = '099720109477';
 const ec2InstanceName = "aws-ec2-ubuntu";
 const ec2KeypairName = 'pulumi_key'
@@ -17,23 +17,23 @@ const pulumiAmi = pulumi.output(aws.getAmi({
 // const defaultVpc = awsx.ec2.Vpc.getDefault();
 
 const sshPort = 22
-const mysqlPort = 3306
+const postgrePort = 5432
 
 const pulumiSecurityGroup = new aws.ec2.SecurityGroup("pulumi-secgrp", {
-    ingress: [{
+        ingress: [{
             fromPort: sshPort,
             toPort: sshPort,
             protocol: "tcp",
             cidrBlocks: ["0.0.0.0/0"]
         },
-        {
-            fromPort: mysqlPort,
-            toPort: mysqlPort,
-            protocol: "tcp",
-            cidrBlocks: ["0.0.0.0/0"]
-        }
-    ],
-    egress: [{
+            {
+                fromPort: postgrePort,
+                toPort: postgrePort,
+                protocol: "tcp",
+                cidrBlocks: ["0.0.0.0/0"]
+            }
+        ],
+        egress: [{
             fromPort: 0,
             toPort: 0,
             protocol: "-1",

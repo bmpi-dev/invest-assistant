@@ -7,16 +7,16 @@
     ssh_user: ubuntu
   tasks:
     - name: Gather Pulumi created EC2 instance public IP
-      shell: cat .ec2ssh/mysql_public_DNS
+      shell: cat .ec2ssh/db_public_DNS
       register: pulumi_stack_output
 
-    - name: Gather MySQL Root Password
-      shell: cat .ec2ssh/mysql_root_passwd
-      register: mysql_root_passwd
+    - name: Gather DB invest Password
+      shell: cat .ec2ssh/db_invest_passwd
+      register: db_invest_passwd
 
     - set_fact:
         ec2_public_dns: "{{ pulumi_stack_output.stdout }}"
-        mysql_root_passwd: "{{ mysql_root_passwd.stdout }}"
+        db_invest_passwd: "{{ db_invest_passwd.stdout }}"
 
     - debug:
         msg: "The public IP of the Pulumi created EC2 instance is: {{ ec2_public_dns }}"
@@ -43,14 +43,27 @@
         name: ec2-instance-connect
         update_cache: yes
 
-    - name: Now use the ansible-galaxy prepared mysql role to install MySQL on our EC2 instance
+    - name: Now use the ansible-galaxy prepared postgresql role to install PostgreSQL on our EC2 instance
       import_role:
-        name: mysql
+        name: postgresql
       delegate_to: '{{ ec2_public_dns }}'
       become: true
       vars:
         ansible_ssh_private_key_file: "{{ keypair_path }}"
         ansible_user: ubuntu
-        mysql_root_password: "{{ mysql_root_passwd }}"
-        mysql_user_home: /home/ubuntu
-        mysql_user_name: ubuntu
+        postgresql_user: postgres
+        postgresql_group: postgres
+        postgresql_global_config_options:
+          - option: listen_addresses
+            value: "*"
+        postgresql_hba_entries:
+          - { type: local, database: all, user: postgres, auth_method: peer }
+          - { type: host, database: all, user: postgres, address: '172.31.0.0/16', auth_method: trust }
+          - { type: local, database: invest, user: invest, auth_method: trust }
+          - { type: host, database: invest, user: invest, address: '0.0.0.0/0', auth_method: password }
+        postgresql_databases:
+          - name: invest
+        postgresql_users:
+          - name: invest
+            password: "{{ db_invest_passwd }}"
+            db: invest

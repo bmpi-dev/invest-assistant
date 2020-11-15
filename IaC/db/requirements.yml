@@ -1,0 +1,5 @@
+# dependency to db role
+- src: https://github.com/geerlingguy/ansible-role-mysql
+  name: mysql
+- src: https://github.com/geerlingguy/ansible-role-postgresql
+  name: postgresql
