@@ -1,4 +1,4 @@
 /bin/
-/node_modules/
-roles/
-.ec2ssh/
+**/node_modules/
+**/roles/
+**/.ec2ssh/
