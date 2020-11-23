@@ -1,0 +1,65 @@
+---
+- hosts: application
+  vars:
+    - packages:
+      # Scans system access logs and bans IPs that show malicious signs
+      - fail2ban
+      # For building with eDeliver
+      - git
+      # For compiling assets using webpack
+      - nodejs
+      - npm
+      # For reverse proxy into our application
+      - nginx
+
+  remote_user: ubuntu
+
+  tasks:
+    - name: Update APT package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        state: present
+        pkg: "{{ packages }}"
+
+    - name: check if erlang installed
+      shell: which erl
+      register: erl_check
+      ignore_errors: true
+
+    - apt_repository: repo='deb https://packages.erlang-solutions.com/ubuntu focal contrib' state=present
+      when: erl_check.rc == 1
+
+    - name: Download erlang_solutions.asc
+      get_url:
+        url: "https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc"
+        dest: "/home/{{ username }}/erlang_solutions.asc"
+      when: erl_check.rc == 1
+
+    - shell: sudo apt-key add erlang_solutions.asc && rm erlang_solutions.asc
+      when: erl_check.rc == 1
+
+    - name: Install erlang and elixir
+      apt:
+        update_cache: yes
+        state: present
+        pkg:
+          - erlang
+          - elixir
+      when: erl_check.rc == 1
+
+    - name: Install Hex
+      command: mix local.hex --force
+      changed_when: >
+        "Will always run, don't show that it changed" == 1
+
+  roles:
+    - role: jnv.unattended-upgrades
+      unattended_origins_patterns:
+      - 'origin=Ubuntu,archive=${distro_codename}-security'
+      unattended_automatic_reboot: true
+      unattended_automatic_reboot_time: '09:00'
+      unattended_mail: "{{ admin_email }}"

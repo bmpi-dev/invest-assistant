@@ -1,0 +1,6 @@
+---
+username: ubuntu
+app_name: invest
+project_name: invest
+domain: invest.i365.tech
+admin_email: "{{ secret_admin_email }}"

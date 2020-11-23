@@ -1,3 +1,5 @@
 /bin/
 **/node_modules/
 **/.ec2ssh/
+**/tmp/
+.vault-password

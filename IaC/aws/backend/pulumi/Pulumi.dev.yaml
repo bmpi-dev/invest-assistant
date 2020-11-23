@@ -1,2 +1,4 @@
 config:
   aws:region: us-east-1
+  backend:domainName: i365.tech.
+  backend:ec2PublicIp: 34.227.242.163

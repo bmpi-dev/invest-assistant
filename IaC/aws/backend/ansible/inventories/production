@@ -1,0 +1,7 @@
+[application]
+ec2-34-227-242-163.compute-1.amazonaws.com
+
+[application:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_private_key_file=.ec2ssh/pulumi_key
+ansible_become=true

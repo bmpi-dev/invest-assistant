@@ -1,0 +1,53 @@
+---
+- hosts: application
+
+  remote_user: ubuntu
+
+  tasks:
+    - name: Remove the default nginx app's config
+      file:
+        path: /etc/nginx/sites-available/default
+        state: absent
+
+    - name: Remove the default nginx app's symlink if it exists
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Copy nginx.conf
+      template:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+
+    - name: Ensure Nginx Modules dir exists
+      file:
+        path: /etc/nginx/modules
+        state: directory
+
+    - name: Nginx SSL Shared Settings Module
+      template:
+        src: "{{ app_name }}_shared_ssl_settings"
+        dest: /etc/nginx/modules/{{ app_name }}_shared_ssl_settings
+
+    - name: Configure nginx for the app
+      template:
+        src: "{{ app_name }}.nginx"
+        dest: "/etc/nginx/sites-available/{{ app_name }}"
+        group: "{{ username }}"
+        owner: "{{ username }}"
+        force: yes
+
+    - name: Enable the app
+      file:
+        src: "/etc/nginx/sites-available/{{ app_name }}"
+        dest: "/etc/nginx/sites-enabled/{{ app_name }}"
+        state: link
+        owner: "{{ username }}"
+        group: "{{ username }}"
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+      changed_when: >
+        "Will always run, don't show that it changed" == 1

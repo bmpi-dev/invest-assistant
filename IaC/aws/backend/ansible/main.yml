@@ -1,0 +1,16 @@
+---
+- hosts: application
+
+  remote_user: ubuntu
+
+- name: Install Packages
+  import_playbook: playbooks/install-packages.yml
+
+- name: Application Deployment Setup
+  import_playbook: playbooks/application-deployment-setup.yml
+
+- name: Let's Encrypt SSL Setup
+  import_playbook: playbooks/lets-encrypt.yml
+
+- name: Setup Nginx
+  import_playbook: playbooks/nginx.yml
