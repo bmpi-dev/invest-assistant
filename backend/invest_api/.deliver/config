@@ -53,13 +53,13 @@ symlink_static(){
   "
 }
 
-post_extract_release_archive() {
+# post_extract_release_archive() {
   # symlink_static
-}
+# }
 
-post_upgrade_release() {
+# post_upgrade_release() {
   # symlink_static
-}
+# }
 
 # Temporary workaround from https://github.com/edeliver/edeliver/issues/314#issuecomment-522151151
 # start_erl.data is not being upgraded when new release is deployed
