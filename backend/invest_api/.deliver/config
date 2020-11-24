@@ -3,12 +3,12 @@
 APP="invest"
 
 # We'll be using the production machine for building the app
-BUILD_HOST="invest.i365.tech"
+BUILD_HOST="invest"
 BUILD_USER="ubuntu"
 BUILD_AT="/home/ubuntu/app_build"
 
 # This is where the app will be served from
-PRODUCTION_HOSTS="invest.i365.tech"
+PRODUCTION_HOSTS="invest"
 PRODUCTION_USER="ubuntu"
 DELIVER_TO="/home/ubuntu/app_release"
 
