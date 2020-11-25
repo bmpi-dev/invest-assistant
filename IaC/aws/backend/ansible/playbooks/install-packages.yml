@@ -42,6 +42,9 @@
     - shell: sudo apt-key add erlang_solutions.asc && rm erlang_solutions.asc
       when: erl_check.rc == 1
 
+    # fix erlang vm locale warning
+    - shell: sudo update-locale LC_ALL=C.UTF-8
+
     - name: Install erlang and elixir
       apt:
         update_cache: yes
