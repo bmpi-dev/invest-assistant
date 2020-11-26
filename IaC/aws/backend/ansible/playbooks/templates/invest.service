@@ -5,6 +5,7 @@ Description={{ app_name }}
 After=network.target
 
 [Service]
+LimitNOFILE=65536
 User={{ username }}
 Restart=on-failure
 

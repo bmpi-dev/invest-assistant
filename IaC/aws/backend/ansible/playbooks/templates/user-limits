@@ -1,0 +1,2 @@
+ubuntu soft    nofile          1000000
+ubuntu hard    nofile          1000000

@@ -1,0 +1,4 @@
+- src: https://github.com/geerlingguy/ansible-role-certbot
+  name: geerlingguy.certbot
+- src: https://galaxy.ansible.com/jnv/unattended-upgrades
+  name: jnv.unattended-upgrades

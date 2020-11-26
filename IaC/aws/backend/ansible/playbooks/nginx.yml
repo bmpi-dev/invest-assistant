@@ -45,6 +45,12 @@
         owner: "{{ username }}"
         group: "{{ username }}"
 
+    - name: Tuning nginx
+      lineinfile:
+        dest: /lib/systemd/system/nginx.service
+        line: 'LimitNOFILE=65536'
+        insertafter: '\[Service\]'
+
     - name: Restart nginx
       service:
         name: nginx

@@ -1,0 +1,22 @@
+---
+- hosts: application
+
+  remote_user: ubuntu
+
+  tasks:
+    - name: Copy user-limits
+      template:
+        src: user-limits
+        dest: /etc/security/limits.d/user-limits
+
+    - name: Copy kernel-tuning
+      template:
+        src: kernel-tuning
+        dest: /etc/sysctl.d/kernel-tuning
+
+    - shell: sudo sysctl -p
+
+    - name: Copy resolv.conf
+      template:
+        src: resolv.conf
+        dest: /etc/resolv.conf

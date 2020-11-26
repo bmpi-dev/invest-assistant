@@ -14,3 +14,6 @@
 
 - name: Setup Nginx
   import_playbook: playbooks/nginx.yml
+
+- name: Server Performance Tuning
+  import_playbook: playbooks/performance-tuning.yml
