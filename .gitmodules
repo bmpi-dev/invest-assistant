@@ -1,3 +1,6 @@
 [submodule "backend/invest-api"]
 	path = backend/invest-api
 	url = https://github.com/bmpi-dev/invest-api
+[submodule "backend/invest-core"]
+	path = backend/invest-core
+	url = https://github.com/bmpi-dev/invest-core/
