@@ -13,6 +13,11 @@ ssl_protocols             TLSv1.2 TLSv1.3;
 ssl_prefer_server_ciphers on;
 ssl_ciphers               ECDH+AESGCM:ECDH+AES256:ECDH+AES128:!DH+3DES:!ADH:!AECDH:!MD5;
 
+# OCSP Stapling
+ssl_stapling on;
+ssl_stapling_verify on;
+ssl_trusted_certificate /etc/letsencrypt/live/{{domain}}/fullchain.pem;
+
 # HSTS
 add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
